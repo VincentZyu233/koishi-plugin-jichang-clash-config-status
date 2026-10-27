@@ -1,22 +1,42 @@
 {
   "name": "koishi-plugin-jichang-clash-config-status",
-  "description": "监听机场的clash配置文件状态捏，获取过期时间，剩余流量等等捏，方便提醒续费捏。",
+  "description": "监听机场 Clash 订阅状态，查询剩余流量与到期时间，支持文本和 Clash 猫猫 Takumi 状态卡定时推送。",
   "version": "0.0.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
     "lib",
-    "dist"
+    "dist",
+    "assets"
   ],
   "license": "MIT",
-  "scripts": {},
+  "koishi": {
+    "service": {
+      "required": [
+        "http"
+      ],
+      "optional": [
+        "cron"
+      ]
+    }
+  },
   "keywords": [
     "chatbot",
     "koishi",
     "plugin"
   ],
-  "devDependencies": {},
+  "scripts": {
+    "test": "tsx --test tests/*.test.ts"
+  },
   "peerDependencies": {
     "koishi": "^4.18.7"
+  },
+  "dependencies": {
+    "@takumi-rs/helpers": "1.8.7",
+    "@takumi-rs/wasm": "1.8.7",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15"
   }
 }
