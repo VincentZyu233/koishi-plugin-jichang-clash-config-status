@@ -1,6 +1,10 @@
 # koishi-plugin-jichang-clash-config-status
 
 [![npm](https://img.shields.io/npm/v/koishi-plugin-jichang-clash-config-status?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-jichang-clash-config-status)
+[![GitHub](https://img.shields.io/badge/GitHub-source-181717?style=flat-square&logo=github)](https://github.com/VincentZyu233/koishi-plugin-jichang-clash-config-status)
+[![Language](https://img.shields.io/github/languages/top/VincentZyu233/koishi-plugin-jichang-clash-config-status?style=flat-square&label=language)](https://github.com/VincentZyu233/koishi-plugin-jichang-clash-config-status)
+[![Languages](https://img.shields.io/github/languages/count/VincentZyu233/koishi-plugin-jichang-clash-config-status?style=flat-square&label=languages)](https://github.com/VincentZyu233/koishi-plugin-jichang-clash-config-status)
+[![Code size](https://img.shields.io/github/languages/code-size/VincentZyu233/koishi-plugin-jichang-clash-config-status?style=flat-square)](https://github.com/VincentZyu233/koishi-plugin-jichang-clash-config-status)
 
 查询机场 Clash 订阅的流量、到期时间和配置摘要，并支持按多个频道和 Cron 定时推送。
 
@@ -14,6 +18,21 @@
 - 支持配置多个推送目标，每行独立设置 `platform`、`selfId`、`channelId`、`cron` 和 `enabled`。
 - 订阅下载成功后缓存到 `data/jichang-clash-config-status/latest.config.yaml`。
 - 最近一次解析结果缓存到 `data/jichang-clash-config-status/latest.status.json`。
+
+## 效果预览
+
+<table>
+  <tr>
+    <td align="center" width="42%">
+      <img src="https://raw.githubusercontent.com/VincentZyu233/koishi-plugin-jichang-clash-config-status/main/docs/images/preview/preview.text.png" alt="text 文本状态消息预览" /><br />
+      <sub><strong>text</strong>：带引用和完整状态信息的文本消息</sub>
+    </td>
+    <td align="center" width="58%">
+      <img src="https://raw.githubusercontent.com/VincentZyu233/koishi-plugin-jichang-clash-config-status/main/docs/images/preview/preview.takumi.png" alt="Takumi Clash 猫猫状态卡预览" /><br />
+      <sub><strong>takumi</strong>：Clash 猫猫深色状态卡</sub>
+    </td>
+  </tr>
+</table>
 
 ## 状态数据说明
 
