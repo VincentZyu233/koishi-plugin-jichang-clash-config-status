@@ -1,0 +1,22 @@
+{
+  "name": "koishi-plugin-jichang-clash-config-status",
+  "description": "监听机场的clash配置文件状态捏，获取过期时间，剩余流量等等捏，方便提醒续费捏。",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "license": "MIT",
+  "scripts": {},
+  "keywords": [
+    "chatbot",
+    "koishi",
+    "plugin"
+  ],
+  "devDependencies": {},
+  "peerDependencies": {
+    "koishi": "^4.18.7"
+  }
+}
