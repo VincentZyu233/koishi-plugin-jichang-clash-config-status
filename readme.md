@@ -44,6 +44,8 @@ subscription-userinfo: upload=1024; download=2048; total=107374182400; expire=17
 
 如果机场不返回该响应头，插件仍会展示 Clash 节点数和策略组数，但会明确提示无法获取流量与到期时间。订阅 URL 为空时会读取本地 `latest.config.yaml`；远程刷新失败时优先使用最近的本地缓存。
 
+流量数值统一固定显示两位小数，例如 `300.00 GiB`；使用百分比同样保留两位小数。
+
 ## 默认配置
 
 - User-Agent：`clash.meta`

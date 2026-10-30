@@ -99,12 +99,16 @@ test('格式化流量、到期时间和缺失状态头提示', () => {
     },
   }
 
-  assert.equal(formatBytes(0), '0 B')
+  assert.equal(formatBytes(0), '0.00 B')
+  assert.equal(formatBytes(512), '512.00 B')
   assert.equal(formatBytes(1024), '1.00 KiB')
+  assert.equal(formatBytes(300 * 1024 ** 3), '300.00 GiB')
   const message = formatTextStatus(snapshot, now)
   assert.match(message, /^🌐 机场订阅状态/)
   assert.match(message, /📊 订阅详情/)
   assert.match(message, /剩余流量/)
+  assert.match(message, /10\.00 KiB/)
+  assert.match(message, /（30\.00%）/)
   assert.match(message, /剩余天数：3 天/)
   assert.match(message, /✨$/)
 

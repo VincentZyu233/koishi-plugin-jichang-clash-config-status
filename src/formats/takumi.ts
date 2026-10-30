@@ -296,7 +296,7 @@ function buildTrafficPanel(values: {
         style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
         children: [
           text('流量额度', { fontSize: 20, fontWeight: 700, color: palette.textSoft }),
-          text(values.total !== null && values.total > 0 ? `${values.percent.toFixed(1)}% 已使用` : '额度未知', {
+          text(values.total !== null && values.total > 0 ? `${values.percent.toFixed(2)}% 已使用` : '额度未知', {
             fontSize: 16,
             fontWeight: 700,
             color: values.percent >= 90 ? palette.red : palette.cyanSoft,

@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-jichang-clash-config-status",
   "description": "监听机场 Clash 订阅状态，查询剩余流量与到期时间，支持文本和 Clash 猫猫 Takumi 状态卡定时推送。",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [

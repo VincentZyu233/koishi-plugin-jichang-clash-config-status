@@ -1,6 +1,6 @@
 export function formatBytes(bytes: number | null | undefined): string {
   if (bytes === null || bytes === undefined || !Number.isFinite(bytes) || bytes < 0) return '未知'
-  if (bytes < 1024) return `${Math.round(bytes)} B`
+  if (bytes < 1024) return `${Math.round(bytes).toFixed(2)} B`
 
   const units = ['KiB', 'MiB', 'GiB', 'TiB', 'PiB']
   let value = bytes
@@ -10,8 +10,7 @@ export function formatBytes(bytes: number | null | undefined): string {
     unitIndex += 1
   } while (value >= 1024 && unitIndex < units.length - 1)
 
-  const digits = value >= 100 ? 0 : value >= 10 ? 1 : 2
-  return `${value.toFixed(digits)} ${units[unitIndex]}`
+  return `${value.toFixed(2)} ${units[unitIndex]}`
 }
 
 export function formatDateTime(value: number | string | Date): string {

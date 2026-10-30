@@ -37,7 +37,7 @@ function appendSubscription(lines: string[], info: SubscriptionInfo, now: number
 
   if (used !== null && total !== null && total > 0) {
     const percent = (used / total) * 100
-    lines.push(`📦 流量：${formatBytes(used)} / ${formatBytes(total)}（${percent.toFixed(1)}%）`)
+    lines.push(`📦 流量：${formatBytes(used)} / ${formatBytes(total)}（${percent.toFixed(2)}%）`)
     lines.push(`🟢 剩余流量：${formatBytes(Math.max(total - used, 0))}`)
   } else if (used !== null) {
     lines.push(`📦 已用流量：${formatBytes(used)}`)
