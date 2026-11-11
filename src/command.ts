@@ -31,7 +31,7 @@ export function registerStatusCommand(ctx: Context, config: Config, service: Sub
     if (!session) return
     const logger = ctx.logger('jichang-clash-config-status')
     try {
-      const snapshot = await service.getStatus(Boolean(options.refresh))
+      const snapshot = await service.getStatus(Boolean(options?.refresh))
       await dispatchStatusOutputs(ctx, config, snapshot, [{
         label: `${session.platform}:${session.channelId}`,
         send: async (content) => session.send(buildCommandReply(session, config, content)),
