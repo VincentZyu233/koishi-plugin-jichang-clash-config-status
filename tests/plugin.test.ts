@@ -6,8 +6,8 @@ import { join } from 'node:path'
 import { after, test } from 'node:test'
 import { h, type Bot, type Context } from 'koishi'
 import { Config } from '../src/config'
-import { createSubscriptionDispatcher } from '../src/dispatcher'
-import { ProxyAgent } from 'undici'
+import { createCustomLookup, createProxyAgent } from '../src/network'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 import { buildCommandReply } from '../src/command'
 import { formatErrorReply } from '../src/formats/error'
 import { resolveStatusFormatters, STATUS_FORMATTERS } from '../src/formats'
@@ -527,24 +527,42 @@ function findAppBaseDir(): string {
   throw new Error('找不到应用根目录和 LXGW 字体')
 }
 
-test('createSubscriptionDispatcher 正确处理 proxyUrl 和 customHosts 映射', async () => {
+test('createProxyAgent 和 createCustomLookup 正确处理 proxyUrl 和 customHosts 映射', async () => {
   // 1. 无配置返回 undefined
-  assert.equal(createSubscriptionDispatcher({}), undefined)
-  assert.equal(createSubscriptionDispatcher({ proxyUrl: '', customHosts: [] }), undefined)
+  assert.equal(createProxyAgent(''), undefined)
+  assert.equal(createProxyAgent('invalid-url'), undefined)
+  assert.equal(createCustomLookup([]), undefined)
 
-  // 2. 配置 proxyUrl 返回 ProxyAgent
-  const proxyDispatcher = createSubscriptionDispatcher({ proxyUrl: 'http://127.0.0.1:7890' })
-  assert.ok(proxyDispatcher instanceof ProxyAgent)
+  // 2. 配置 proxyUrl 返回 HttpsProxyAgent
+  const agent = createProxyAgent('http://127.0.0.1:7890')
+  assert.ok(agent instanceof HttpsProxyAgent)
 
-  // 3. 配置 customHosts 返回带自定义 lookup 的 Agent
-  const customDispatcher = createSubscriptionDispatcher({
-    customHosts: [
-      { host: 'ze4v9.no-mad-sub.one', ip: '23.129.140.247' },
-      { host: '   ', ip: '1.1.1.1' },
-      { host: 'invalid-ip.com', ip: 'not-an-ip' },
-    ],
-  }) as any
-  assert.ok(customDispatcher)
+  // 3. 配置 customHosts 返回自定义 lookup 函数
+  const lookup = createCustomLookup([
+    { host: 'ze4v9.no-mad-sub.one', ip: '23.129.140.247' },
+    { host: '   ', ip: '1.1.1.1' },
+    { host: 'invalid-ip.com', ip: 'not-an-ip' },
+  ])
+  assert.ok(typeof lookup === 'function')
+
+  // 测试 lookup 函数行为 (单地址)
+  await new Promise<void>((resolve, reject) => {
+    lookup!('ze4v9.no-mad-sub.one', {}, (err: any, address: string, family: number) => {
+      if (err) return reject(err)
+      assert.equal(address, '23.129.140.247')
+      assert.equal(family, 4)
+      resolve()
+    })
+  })
+
+  // 测试 lookup 函数行为 (all: true)
+  await new Promise<void>((resolve, reject) => {
+    lookup!('ZE4V9.no-mad-sub.ONE', { all: true }, (err: any, addresses: any[]) => {
+      if (err) return reject(err)
+      assert.deepEqual(addresses, [{ address: '23.129.140.247', family: 4 }])
+      resolve()
+    })
+  })
 })
 
 test('Config Schema 正确提供 proxyUrl、customHosts 与 20 秒默认超时', () => {

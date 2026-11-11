@@ -29,13 +29,6 @@ export const usage = `
 
 export function apply(ctx: Context, config: Config) {
   const logger = ctx.logger(name)
-
-  ctx.on('http/fetch-init', (url, init, requestConfig: any) => {
-    if (requestConfig?.dispatcher) {
-      ;(init as any).dispatcher = requestConfig.dispatcher
-    }
-  })
-
   const service = new SubscriptionService(ctx, config)
 
   registerStatusCommand(ctx, config, service)

@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto'
 import { mkdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import axios from 'axios'
 import type { Context } from 'koishi'
 import type { Config } from './config'
-import { createSubscriptionDispatcher } from './dispatcher'
+import { createCustomLookup, createProxyAgent } from './network'
 import {
   buildRequestHeaders,
   parseClashConfig,
@@ -18,6 +19,7 @@ export const STATUS_FILE_NAME = 'latest.status.json'
 
 export interface SubscriptionServiceOptions {
   now?: () => number
+  fetcher?: (url: string, options?: any) => Promise<{ data: any; headers: any }>
 }
 
 export interface StoragePaths {
@@ -36,6 +38,7 @@ export class SubscriptionError extends Error {
 export class SubscriptionService {
   readonly paths: StoragePaths
   private readonly now: () => number
+  private readonly mockFetcher?: (url: string, options?: any) => Promise<{ data: any; headers: any }>
   private memory?: StatusSnapshot
   private memoryLoadedAt = 0
   private refreshPromise?: Promise<StatusSnapshot>
@@ -46,6 +49,11 @@ export class SubscriptionService {
     options: SubscriptionServiceOptions = {},
   ) {
     this.now = options.now || Date.now
+    if (options.fetcher) {
+      this.mockFetcher = options.fetcher
+    } else if (typeof ctx.http === 'function' && !('schema' in ctx.http)) {
+      this.mockFetcher = ctx.http as any
+    }
     const directory = join(ctx.baseDir, ...PLUGIN_DATA_DIR)
     this.paths = {
       directory,
@@ -107,23 +115,43 @@ export class SubscriptionService {
       throw new SubscriptionError('订阅地址只支持 HTTP 或 HTTPS')
     }
 
-    const dispatcher = createSubscriptionDispatcher({
-      proxyUrl: this.config.proxyUrl,
-      customHosts: this.config.customHosts,
-    })
+    let rawData: any
+    let rawHeaders: any
 
-    const response = await this.ctx.http<string>(url, {
-      method: 'GET',
-      responseType: 'text',
-      timeout: Math.max(1, this.config.requestTimeoutSeconds) * 1000,
-      headers: buildRequestHeaders(this.config.userAgent, this.config.customHeaders),
-      proxyAgent: this.config.proxyUrl?.trim() || undefined,
-      dispatcher,
-    } as any)
+    if (this.mockFetcher) {
+      const response = await this.mockFetcher(url, {
+        method: 'GET',
+        responseType: 'text',
+        timeout: Math.max(1, this.config.requestTimeoutSeconds) * 1000,
+        headers: buildRequestHeaders(this.config.userAgent, this.config.customHeaders),
+      })
+      rawData = response.data
+      rawHeaders = response.headers
+    } else {
+      const httpsAgent = createProxyAgent(this.config.proxyUrl)
+      const lookup = createCustomLookup(this.config.customHosts)
 
-    const yaml = typeof response.data === 'string' ? response.data : String(response.data ?? '')
+      const response = await axios.get<string>(url, {
+        method: 'GET',
+        responseType: 'text',
+        timeout: Math.max(1, this.config.requestTimeoutSeconds) * 1000,
+        headers: buildRequestHeaders(this.config.userAgent, this.config.customHeaders),
+        httpsAgent,
+        proxy: false,
+        lookup,
+        validateStatus: (status) => status < 400,
+      })
+      rawData = response.data
+      rawHeaders = response.headers
+    }
+
+    const yaml = typeof rawData === 'string' ? rawData : String(rawData ?? '')
     const summary = parseClashConfig(yaml)
-    const subscription = parseSubscriptionUserInfo(response.headers.get('subscription-userinfo'))
+    const rawHeader = typeof rawHeaders?.get === 'function'
+      ? rawHeaders.get('subscription-userinfo')
+      : rawHeaders?.['subscription-userinfo']
+    const headerValue = Array.isArray(rawHeader) ? rawHeader[0] : (rawHeader != null ? String(rawHeader) : null)
+    const subscription = parseSubscriptionUserInfo(headerValue)
     const status: CachedStatus = {
       version: 1,
       fetchedAt: new Date(this.now()).toISOString(),
