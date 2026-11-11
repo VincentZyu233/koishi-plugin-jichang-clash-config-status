@@ -5,7 +5,9 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, test } from 'node:test'
 import { h, type Bot, type Context } from 'koishi'
-import type { Config } from '../src/config'
+import { Config } from '../src/config'
+import { createSubscriptionDispatcher } from '../src/dispatcher'
+import { ProxyAgent } from 'undici'
 import { buildCommandReply } from '../src/command'
 import { formatErrorReply } from '../src/formats/error'
 import { resolveStatusFormatters, STATUS_FORMATTERS } from '../src/formats'
@@ -524,3 +526,31 @@ function findAppBaseDir(): string {
   }
   throw new Error('找不到应用根目录和 LXGW 字体')
 }
+
+test('createSubscriptionDispatcher 正确处理 proxyUrl 和 customHosts 映射', async () => {
+  // 1. 无配置返回 undefined
+  assert.equal(createSubscriptionDispatcher({}), undefined)
+  assert.equal(createSubscriptionDispatcher({ proxyUrl: '', customHosts: [] }), undefined)
+
+  // 2. 配置 proxyUrl 返回 ProxyAgent
+  const proxyDispatcher = createSubscriptionDispatcher({ proxyUrl: 'http://127.0.0.1:7890' })
+  assert.ok(proxyDispatcher instanceof ProxyAgent)
+
+  // 3. 配置 customHosts 返回带自定义 lookup 的 Agent
+  const customDispatcher = createSubscriptionDispatcher({
+    customHosts: [
+      { host: 'ze4v9.no-mad-sub.one', ip: '23.129.140.247' },
+      { host: '   ', ip: '1.1.1.1' },
+      { host: 'invalid-ip.com', ip: 'not-an-ip' },
+    ],
+  }) as any
+  assert.ok(customDispatcher)
+})
+
+test('Config Schema 正确提供 proxyUrl、customHosts 与 20 秒默认超时', () => {
+  const config = Config({})
+  assert.equal(config.proxyUrl, '')
+  assert.deepEqual(config.customHosts, [])
+  assert.equal(config.requestTimeoutSeconds, 20)
+})
+

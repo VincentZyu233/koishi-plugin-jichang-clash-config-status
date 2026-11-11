@@ -12,6 +12,8 @@
 
 - `机场状态`：查看订阅状态，默认缓存五分钟。
 - `机场状态 --refresh`：跳过缓存并立即刷新订阅。
+- `proxyUrl`：支持配置 HTTP/HTTPS 代理通道拉取订阅（如 `http://127.0.0.1:7890`）。
+- `customHosts`：支持配置应用层 Hosts 域名解析表格，无需修改操作系统 hosts，即可绕过国内 DNS 污染或故障反代节点定向连通目标 IP。
 - `outputFormats`：支持 `text`、`takumi` 多选，默认两项都启用，每个格式单独发送一条消息。
 - `takumi`：使用 Clash 猫猫 logo 生成深蓝科技风状态卡图片。
 - `enableQuote`：控制指令回复是否引用触发消息，默认开启；Cron 推送不引用。

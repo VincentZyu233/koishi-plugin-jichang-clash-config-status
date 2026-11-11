@@ -19,6 +19,7 @@ export const usage = `
 - 配置机场订阅 URL 后，插件会下载并缓存 Clash 配置。
 - 通过 \`机场状态\` 指令查看流量、到期时间和配置摘要。
 - 使用 \`机场状态 --refresh\` 强制刷新订阅。
+- 支持 \`proxyUrl\` 代理通道与 \`customHosts\` 域名定向映射，抵御国内 DNS 调度异常与网络超时。
 - 输出格式支持 \`text\` 与 \`takumi\` 多选，默认两者都启用并分别发送。
 - \`takumi\` 使用 Clash 猫猫 logo 生成深色科技风状态卡。
 - 推送目标支持多行表格，每行可独立配置平台、频道、Bot ID 和 Cron。
@@ -28,6 +29,13 @@ export const usage = `
 
 export function apply(ctx: Context, config: Config) {
   const logger = ctx.logger(name)
+
+  ctx.on('http/fetch-init', (url, init, requestConfig: any) => {
+    if (requestConfig?.dispatcher) {
+      ;(init as any).dispatcher = requestConfig.dispatcher
+    }
+  })
+
   const service = new SubscriptionService(ctx, config)
 
   registerStatusCommand(ctx, config, service)

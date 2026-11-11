@@ -3,6 +3,7 @@ import { mkdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { Context } from 'koishi'
 import type { Config } from './config'
+import { createSubscriptionDispatcher } from './dispatcher'
 import {
   buildRequestHeaders,
   parseClashConfig,
@@ -106,12 +107,19 @@ export class SubscriptionService {
       throw new SubscriptionError('订阅地址只支持 HTTP 或 HTTPS')
     }
 
+    const dispatcher = createSubscriptionDispatcher({
+      proxyUrl: this.config.proxyUrl,
+      customHosts: this.config.customHosts,
+    })
+
     const response = await this.ctx.http<string>(url, {
       method: 'GET',
       responseType: 'text',
       timeout: Math.max(1, this.config.requestTimeoutSeconds) * 1000,
       headers: buildRequestHeaders(this.config.userAgent, this.config.customHeaders),
-    })
+      proxyAgent: this.config.proxyUrl?.trim() || undefined,
+      dispatcher,
+    } as any)
 
     const yaml = typeof response.data === 'string' ? response.data : String(response.data ?? '')
     const summary = parseClashConfig(yaml)

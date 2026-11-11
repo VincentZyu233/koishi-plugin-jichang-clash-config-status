@@ -10,6 +10,11 @@ export interface RequestHeader {
   value: string
 }
 
+export interface CustomHost {
+  host: string
+  ip: string
+}
+
 export interface PushTarget {
   enabled: boolean
   note: string
@@ -21,6 +26,8 @@ export interface PushTarget {
 
 export interface Config {
   subscriptionUrl: string
+  proxyUrl: string
+  customHosts: CustomHost[]
   userAgent: string
   customHeaders: RequestHeader[]
   requestTimeoutSeconds: number
@@ -39,6 +46,21 @@ export const Config: Schema<Config> = Schema.intersect([
       .role('secret')
       .default('')
       .description('🔗 机场 Clash 订阅下载 URL。留空时读取本地缓存配置；URL 中可能包含订阅令牌，请勿公开。'),
+    proxyUrl: Schema.string()
+      .role('secret')
+      .default('')
+      .description('🌐 HTTP/HTTPS 网络代理地址（例如 http://127.0.0.1:7890 或 http://192.168.31.241:7890）。留空则直连。'),
+    customHosts: Schema.array(Schema.object({
+      host: Schema.string()
+        .required()
+        .description('域名，例如 ze4v9.no-mad-sub.one'),
+      ip: Schema.string()
+        .required()
+        .description('目标 IP，例如 23.129.140.247'),
+    }))
+      .role('table')
+      .default([])
+      .description('🎯 自定义 Hosts 映射表格。绕过国内 DNS 污染或故障反代中继，强制将特定域名定向连接到目标 IP，无须修改操作系统 hosts。'),
     userAgent: Schema.string()
       .default(DEFAULT_USER_AGENT)
       .description('🌐 下载订阅时使用的 User-Agent。部分机场会根据 UA 返回不同格式。'),
@@ -57,7 +79,7 @@ export const Config: Schema<Config> = Schema.intersect([
     requestTimeoutSeconds: Schema.number()
       .min(1)
       .max(120)
-      .default(10)
+      .default(20)
       .description('⌛ 下载订阅的超时时间（秒）'),
     cacheTtlMinutes: Schema.number()
       .min(1)
