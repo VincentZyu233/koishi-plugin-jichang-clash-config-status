@@ -1,11 +1,5 @@
 # koishi-plugin-jichang-clash-config-status
 
-[![npm](https://img.shields.io/npm/v/koishi-plugin-jichang-clash-config-status?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-jichang-clash-config-status)
-[![GitHub](https://img.shields.io/badge/GitHub-source-181717?style=flat-square&logo=github)](https://github.com/VincentZyu233/koishi-plugin-jichang-clash-config-status)
-[![Language](https://img.shields.io/github/languages/top/VincentZyu233/koishi-plugin-jichang-clash-config-status?style=flat-square&label=language)](https://github.com/VincentZyu233/koishi-plugin-jichang-clash-config-status)
-[![Languages](https://img.shields.io/github/languages/count/VincentZyu233/koishi-plugin-jichang-clash-config-status?style=flat-square&label=languages)](https://github.com/VincentZyu233/koishi-plugin-jichang-clash-config-status)
-[![Code size](https://img.shields.io/github/languages/code-size/VincentZyu233/koishi-plugin-jichang-clash-config-status?style=flat-square)](https://github.com/VincentZyu233/koishi-plugin-jichang-clash-config-status)
-
 查询机场 Clash 订阅的流量、到期时间和配置摘要，并支持按多个频道和 Cron 定时推送。
 
 ## 功能
