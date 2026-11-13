@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import axios from 'axios'
 import type { Context } from 'koishi'
 import type { Config } from './config'
-import { createCustomLookup, createProxyAgent } from './network'
+import { createAgents } from './network'
 import {
   buildRequestHeaders,
   parseClashConfig,
@@ -128,17 +128,16 @@ export class SubscriptionService {
       rawData = response.data
       rawHeaders = response.headers
     } else {
-      const httpsAgent = createProxyAgent(this.config.proxyUrl)
-      const lookup = createCustomLookup(this.config.customHosts)
+      const { httpAgent, httpsAgent } = createAgents(this.config.customHosts, this.config.proxyUrl)
 
       const response = await axios.get<string>(url, {
         method: 'GET',
         responseType: 'text',
         timeout: Math.max(1, this.config.requestTimeoutSeconds) * 1000,
         headers: buildRequestHeaders(this.config.userAgent, this.config.customHeaders),
+        httpAgent,
         httpsAgent,
         proxy: false,
-        lookup,
         validateStatus: (status) => status < 400,
       })
       rawData = response.data
